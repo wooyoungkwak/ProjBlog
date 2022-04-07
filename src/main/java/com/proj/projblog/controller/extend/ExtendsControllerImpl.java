@@ -1,8 +1,7 @@
-package com.proj.projblog.controller;
+package com.proj.projblog.controller.extend;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import com.proj.projblog.controller.extend.ExtendsController;
 
 /**
  * Date : 2022-04-03
