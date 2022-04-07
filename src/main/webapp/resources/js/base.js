@@ -1,7 +1,7 @@
 let ajaxJT = function (url, data, succCallback, failCallBack) {
 	if(typeof url === 'undefined') {
 		return;
-	};
+	}
 
 	$.ajax({
 		type: 'POST',
@@ -21,7 +21,7 @@ let ajaxJT = function (url, data, succCallback, failCallBack) {
 let ajaxJJ = function (url, data, succCallback, failCallBack) {
 	if(typeof url === 'undefined') {
 		return;
-	};
+	}
 
 	$.ajax({
 		type: 'POST',
@@ -42,7 +42,7 @@ let ajaxJJ = function (url, data, succCallback, failCallBack) {
 $.ajaxSync = function(url, reqData){
 	if(typeof url === 'undefined') {
 		return;
-	};
+	}
 
 	var result = {};
 

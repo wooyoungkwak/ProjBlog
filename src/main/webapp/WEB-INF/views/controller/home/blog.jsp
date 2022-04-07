@@ -247,6 +247,7 @@
             pageEvent.init();
 
         </script>
+
     </stripes:layout-component>
 
 </stripes:layout-render>
