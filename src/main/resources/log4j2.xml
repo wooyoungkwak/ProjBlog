@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="INFO">
+
+    <Properties>
+        <Property name="PROFILE">home</Property>
+        <Property name="LOG_PACKAGE">com.sample.springbootsample</Property>
+        <Property name="LOG_DIR">.log</Property>
+        <Property name="LOG_NAME">log</Property>
+        <Property name="LOG_PATTERN">%d{hh:mm:ss} %-5level [%thread] %logger : %msg%n</Property>
+    </Properties>
+
+    <Appenders>
+        <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+        </Console>
+        <RollingFile name="file" fileName="${LOG_DIR}/${LOG_NAME}.log" filePattern="${LOG_DIR}/${LOG_NAME}_%d{yyyy-MM-dd-hh}.log">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <Policies>
+                <!-- 시간별 로그 파일 생성-->
+                <TimeBasedTriggeringPolicy modulate="true" interval="1"/>
+                <SizeBasedTriggeringPolicy size="50MB" />
+            </Policies>
+            <!-- 롤링 파일 5개 까지 생성 -->
+            <DefaultRolloverStrategy max="5" fileIndex="min"/>
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+
+        <!-- Root Logger -->
+        <Root level="INFO" additivity="false">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="file"/>
+        </Root>
+
+        <!-- 스프링 프레임워크에서 찍는건 level을 info로 설정 -->
+        <Logger name="org.springframework" level="INFO" additivity="false">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="file"/>
+        </Logger>
+
+        <!-- rolling file에는 debug, console에는 info 분리하여 처리 가능하다. -->
+        <Logger name="com.sample" additivity="false">
+            <AppenderRef ref="console" level="INFO"/>
+            <AppenderRef ref="file" level="INFO"/>
+        </Logger>
+
+    </Loggers>
+</Configuration>
