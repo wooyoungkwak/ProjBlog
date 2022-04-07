@@ -1,13 +1,13 @@
 package com.proj.projblog.controller.home;
 
-import com.proj.projblog.controller.ExtendsController;
+import com.proj.projblog.controller.extend.ExtendsController;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Map;
 
 /**
  * Date : 2022-04-03
@@ -16,7 +16,14 @@ import java.util.Map;
  * Description :
  */
 @Controller
-public class HomeController extends ExtendsController {
+public class HomeController {
+
+    @Autowired
+    ExtendsController extendsController;
+
+    public String getPath(String defaultPath){
+        return extendsController.getPath(this.getClass(), defaultPath);
+    }
 
     /* GET */
 
@@ -74,7 +81,6 @@ public class HomeController extends ExtendsController {
     @ResponseBody
     public String info(HttpServletRequest request, @RequestBody String data) {
         String result = "";
-
         return result;
     }
 
