@@ -7,7 +7,6 @@
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://stripes.sourceforge.net/stripes.tld" prefix="stripes" %>
-<% String contextPath = request.getContextPath(); %>
 
 <stripes:layout-render name="/WEB-INF/views/layout/error.jsp">
 
@@ -22,7 +21,7 @@
                         <p class="lead">${msg}</p>
                         <a href="home">
                             <i class="fas fa-arrow-left me-1"></i>
-                            Return to Dashboard
+                            Return to Home
                         </a>
                     </div>
                 </div>
