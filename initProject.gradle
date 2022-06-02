@@ -1,202 +1,24 @@
-configurations {
-    all {
-        // springboot 자체 logging 프로임워크 제외
-        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
-    }
-    compileOnly {
-        extendsFrom annotationProcessor
-    }
-}
+/* extends */
+ext.dependenceOnSecurity = false                   // whether to use spring-boot-security
+ext.dependenceOnAop = true                        // whether to use spring-boot-aop
+ext.dependenceOnJwt = false                        // whether to use jwt
+ext.dependenceOnRDBMS = true                      // whether to use RDBMS
+ext.dependenceOnQUERYDSL = true                   // whether to use query DSL
+ext.dependenceOnMYBATIS = false                    // whether to use mybatis
+ext.uploadArchive = false                          // whether to upload archive
 
-dependencies {
+ext.RDMBS = [
+        MYSQL : "MYSQL",
+        MSSQL : "MSSQL",
+        ORACLE: "ORACLE"
+]
 
-    // aop
-    implementation 'org.springframework.boot:spring-boot-starter-aop'
+ext.typeOfRDMBS = RDMBS.MSSQL                       // select to RDBMS
 
-    // development tools
-    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+/* apply */
+apply from: 'initConfiguration.gradle'              // configuration for built environment
+apply from: 'initDependencies.gradle'              // configuration for built environment
+apply from: 'initFile.gradle'                       // create to web file
 
-    // security
-//    implementation "org.springframework.boot:spring-boot-starter-security"
-
-    // jsp ( add jstl and stripes )
-    implementation 'org.apache.tomcat.embed:tomcat-embed-jasper'
-    implementation 'javax.servlet:jstl'
-    implementation 'net.sourceforge.stripes:stripes:1.5.8'
-
-    // jpa
-//    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-
-    // queryDSL
-//    implementation 'com.querydsl:querydsl-jpa'
-
-    // java jdbc driver
-//    runtimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
-
-    // lombok
-    compileOnly 'org.projectlombok:lombok'
-
-    // log4js (logging 프레임워크)
-    implementation 'org.springframework.boot:spring-boot-starter-log4j2'
-
-    // util - guava
-    implementation group: 'com.google.guava', name: 'guava', version: '11.0.2'
-
-    /* processor */
-    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
-//    annotationProcessor 'org.projectlombok:lombok'
-//    // java.lang.NoClassDefFoundError(javax.annotation.Entity) 발생 대응
-//    annotationProcessor 'javax.persistence:javax.persistence-api'
-//    // java.lang.NoClassDefFoundError(javax.annotation.Generated) 발생 대응
-//    annotationProcessor 'javax.annotation:javax.annotation-api'
-//    // Querydsl JPAAnnotationProcessor 사용 지정
-//    annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jpa"
-
-}
-
-// war 배포시 내장용 tomcat 사용 여부
-bootWar.enabled=false
-
-// war 배포시 외장용 tomcat 사용 여부
-war {
-    archiveName 'ROOT.war'
-    enabled=true
-}
-
-// make Web Directory Template
-task initWebProject (dependsOn: ['createYML', 'createLog4j'], description: "initialize Web Project") {
-
-    doLast {
-        [webAppDir, new File(webAppDir, '/WEB-INF') , new File(webAppDir, '/WEB-INF/views'),new File(webAppDir, '/WEB-INF/views/controller'), new File(webAppDir, '/WEB-INF/tags'),
-         new File(webAppDir, '/WEB-INF/views/controller/home'),new File(webAppDir, '/WEB-INF/views/controller/error'),new File(webAppDir, '/WEB-INF/views/layout'),
-         new File(webAppDir, '/WEB-INF/views/reference'),new File(webAppDir, '/resources'),
-         new File(webAppDir, '/resources/js'),new File(webAppDir, '/resources/css'), new File(webAppDir, '/resources/assets')].each {
-            if (!it.exists()) {
-                it.mkdirs()
-            }
-        }
-
-        sourceSets.main.java.srcDirs.each {
-            String rootDir = it.toString().replace('[', '').replace(']', '')
-            String packageDir = this.group.toString().replace('.', '\\')
-            String javaDir = rootDir + '\\' + packageDir + '\\' + this.name
-
-            [new File(javaDir, '/controller') , new File(javaDir, '/exception'), new File(javaDir, '/aop'),
-             new File(javaDir, '/model'),new File(javaDir, '/security')].each {
-                if (!it.exists()) it.mkdirs()
-            }
-        }
-    }
-}
-
-// create log4j.xml file
-task createLog4j {
-    doLast {
-        String content = '<?xml version="1.0" encoding="UTF-8"?>\n' +
-                '<Configuration status="INFO">\n' +
-                '\n' +
-                '    <Properties>\n' +
-                '        <Property name="PROFILE">home</Property>\n' +
-                '        <Property name="LOG_PACKAGE">com.sample.springbootsample</Property>\n' +
-                '        <Property name="LOG_DIR">.log</Property>\n' +
-                '        <Property name="LOG_NAME">log</Property>\n' +
-                '        <Property name="LOG_PATTERN">%d{hh:mm:ss} %-5level [%thread] %logger : %msg%n</Property>\n' +
-                '    </Properties>\n' +
-                '\n' +
-                '    <Appenders>\n' +
-                '        <Console name="console" target="SYSTEM_OUT">\n' +
-                '            <PatternLayout pattern="${LOG_PATTERN}"/>\n' +
-                '        </Console>\n' +
-                '        <RollingFile name="file" fileName="${LOG_DIR}/${LOG_NAME}.log" filePattern="${LOG_DIR}/${LOG_NAME}_%d{yyyy-MM-dd-hh}.log">\n' +
-                '            <PatternLayout pattern="${LOG_PATTERN}"/>\n' +
-                '            <Policies>\n' +
-                '                <!-- 시간별 로그 파일 생성-->\n' +
-                '                <TimeBasedTriggeringPolicy modulate="true" interval="1"/>\n' +
-                '                <SizeBasedTriggeringPolicy size="50MB" />\n' +
-                '            </Policies>\n' +
-                '            <!-- 롤링 파일 5개 까지 생성 -->\n' +
-                '            <DefaultRolloverStrategy max="5" fileIndex="min"/>\n' +
-                '        </RollingFile>\n' +
-                '    </Appenders>\n' +
-                '\n' +
-                '    <Loggers>\n' +
-                '\n' +
-                '        <!-- Root Logger -->\n' +
-                '        <Root level="INFO" additivity="false">\n' +
-                '            <AppenderRef ref="console"/>\n' +
-                '            <AppenderRef ref="file"/>\n' +
-                '        </Root>\n' +
-                '\n' +
-                '        <!-- 스프링 프레임워크에서 찍는건 level을 info로 설정 -->\n' +
-                '        <Logger name="org.springframework" level="INFO" additivity="false">\n' +
-                '            <AppenderRef ref="console"/>\n' +
-                '            <AppenderRef ref="file"/>\n' +
-                '        </Logger>\n' +
-                '\n' +
-                '        <!-- rolling file에는 debug, console에는 info 분리하여 처리 가능하다. -->\n' +
-                '        <Logger name="com.sample" additivity="false">\n' +
-                '            <AppenderRef ref="console" level="INFO"/>\n' +
-                '            <AppenderRef ref="file" level="INFO"/>\n' +
-                '        </Logger>\n' +
-                '\n' +
-                '    </Loggers>\n' +
-                '</Configuration>'
-
-        sourceSets.main.java.srcDirs.each {
-            String absoluteDir = it.getPath()
-            [new File(absoluteDir, '../resources/log4j2.xml' )].each {
-                if (!it.exists()) {
-                    it.createNewFile()
-                    File configFile = file(it)
-                    configFile.write content
-                }
-            }
-        }
-    }
-}
-
-// create application.yml file
-task createYML {
-    doLast {
-        String content = "spring:\n" +
-                "  mvc:\n" +
-                "    view:\n" +
-                "      prefix: /WEB-INF/views\n" +
-                "      suffix: .jsp\n" +
-                "  devtools:\n" +
-                "    livereload:\n" +
-                "      enabled: true\n" +
-                "  jpa:\n" +
-                "    show-sql: true\n" +
-                "    hibernate:\n" +
-                "      ddl-auto: none\n" +
-                "      naming:\n" +
-                "        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl\n" +
-                "  datasource:\n" +
-                "    url: jdbc:sqlserver://localhost;databaseName=demo_board;trustServerCertificate=true;encrypt=true;\n" +
-                "    username: sa\n" +
-                "    password: rudnf12dnjf\n" +
-                "logging:\n" +
-                "  config: classpath:log4j2.xml\n" +
-                "debug: false\n" +
-                "server:\n" +
-                "  port: 8080\n" +
-                "  servlet:\n" +
-                "    context-path: /"
-
-
-        sourceSets.main.java.srcDirs.each {
-            String absoluteDir = it.getPath()
-            [new File(absoluteDir, '../resources/application.yml' )].each {
-                if (!it.exists()) {
-                    it.createNewFile()
-                    File configFile = file(it)
-                    configFile.write content
-                }
-
-            }
-        }
-
-    }
-
-}
+if (uploadArchive !=null && uploadArchive)
+    apply from: 'uploadArchive.gradle'                  // upload to archive repository

@@ -84,4 +84,9 @@ public class HomeController {
         return result;
     }
 
+    @ExceptionHandler(Exception.class)
+    public String exception(HttpServletRequest request, Model model) {
+        model.addAttribute("msg", "unknown error");
+        return  "/controller/error/404";
+    }
 }
